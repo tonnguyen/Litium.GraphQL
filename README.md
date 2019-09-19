@@ -25,7 +25,7 @@ To install, add a project reference from `Litium.Accelerator.Mvc` to `Litium.Gra
 Then open a browser, navigate to http://localhost/graphql to access the GraphiQL interface.
 
 ## Mobile application
-The sample includes also a sample mobile application, which was built by Expo. To install dependencies, execute:
+The sample includes also a sample mobile application, under `Litium.GraphQL.mobile` folder, which was built by Expo. To install dependencies, execute:
 
 ```
 yarn install
