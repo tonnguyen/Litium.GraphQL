@@ -1,5 +1,7 @@
 # Litium.GraphQL
  Demonstrate how to query data in Litium using GraphQL
+ 
+![Query data with GraphiQL](screenshots/GraphiQL.JPG)
 
 ## Discalimer
 This is only to show the idea of how to integrate GraphQL to Litium. It should not be used in production.
@@ -20,7 +22,7 @@ To install, add a project reference from `Litium.Accelerator.Mvc` to `Litium.Gra
   </location>
 ```
 
-Then open a browser, navigate to http://localhost/graphql.
+Then open a browser, navigate to http://localhost/graphql to access the GraphiQL interface.
 
 ## Mobile application
 The sample includes also a sample mobile application, which was built by Expo. To install dependencies, execute:
@@ -49,3 +51,8 @@ yarn run ios
 ```
 
 More info about Expo: https://docs.expo.io/versions/latest/
+
+## Screenshots
+
+![Product list](screenshots/home.jpg)
+![Sidebar](screenshots/sidebar.jpg)
