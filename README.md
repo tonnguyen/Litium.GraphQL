@@ -3,7 +3,7 @@
  
 ![Query data with GraphiQL](screenshots/GraphiQL.JPG)
 
-## Discalimer
+## Disclaimer
 This is only to show the idea of how to integrate GraphQL to Litium. It should not be used in production.
 
 ## Installation
