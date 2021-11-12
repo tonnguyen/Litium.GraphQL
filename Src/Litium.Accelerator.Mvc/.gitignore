@@ -1,0 +1,6 @@
+/.vscode
+/appsettings.Development.json
+/Properties/launchSettings.json
+/Views/Mail/
+/web.config
+/wwwroot/ui
