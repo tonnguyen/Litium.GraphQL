@@ -18,3 +18,13 @@ bin
 obj
 Src/Litium.Accelerator.Mvc/Files
 Src/litium.log
+Files
+dist
+node_modules
+.vscode
+appsettings.Development.json
+logs
+wwwroot
+.next
+_static
+out
