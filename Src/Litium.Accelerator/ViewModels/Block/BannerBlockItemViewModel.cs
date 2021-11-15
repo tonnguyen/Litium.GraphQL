@@ -8,6 +8,7 @@ using Litium.Runtime.AutoMapper;
 using Litium.Web;
 using Litium.Web.Models;
 using Litium.Web.Routing;
+using Newtonsoft.Json;
 using System;
 using System.Globalization;
 
@@ -15,7 +16,9 @@ namespace Litium.Accelerator.ViewModels.Block
 {
     public class BannerBlockItemViewModel : IAutoMapperConfiguration
     {
+        [JsonIgnore]
         public ImageModel Image { get; set; }
+        public string ImageUrl { get; set; }
         public string ActionText { get; set; }
         public string LinkText { get; set; }
         public string LinkUrl { get; set; }
@@ -27,7 +30,11 @@ namespace Litium.Accelerator.ViewModels.Block
                .ForMember(x => x.LinkText, m => m.MapFrom(c => c.Fields.GetValue<string>(BlockFieldNameConstants.LinkText, CultureInfo.CurrentUICulture)))
                .ForMember(x => x.ActionText, m => m.MapFrom(c => c.Fields.GetValue<string>(BlockFieldNameConstants.ActionText, CultureInfo.CurrentUICulture)))
                .ForMember(x => x.Image, m => m.MapFrom(c => c.Fields.GetValue<Guid>(BlockFieldNameConstants.BlockImagePointer, CultureInfo.CurrentUICulture).MapTo<ImageModel>()))
-               .ForMember(x => x.LinkUrl, m => m.MapFrom<LinkUrlResolver>());
+               .ForMember(x => x.LinkUrl, m => m.MapFrom<LinkUrlResolver>())
+               .AfterMap((fields, banner) =>
+               {
+                   banner.ImageUrl = banner.Image.GetUrlToImage(new System.Drawing.Size(786, -1), new System.Drawing.Size(1314, -1)).Url;
+               });
         }
 
         [UsedImplicitly]

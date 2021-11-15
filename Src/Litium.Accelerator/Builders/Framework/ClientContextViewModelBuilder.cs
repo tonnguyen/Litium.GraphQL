@@ -1,22 +1,22 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using Litium.Accelerator.Constants;
-using Litium.Accelerator.Routing;
-using Litium.Accelerator.ViewModels.Framework;
-using Litium.Accelerator.ViewModels.Search;
-using Litium.FieldFramework.FieldTypes;
-using Litium.Globalization;
-using Litium.Runtime.AutoMapper;
-using Litium.Web.Models;
-using Litium.Accelerator.Services;
-using Litium.Sales;
-using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Http;
-using System.Threading.Tasks;
+﻿    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using Litium.Accelerator.Constants;
+    using Litium.Accelerator.Routing;
+    using Litium.Accelerator.ViewModels.Framework;
+    using Litium.Accelerator.ViewModels.Search;
+    using Litium.FieldFramework.FieldTypes;
+    using Litium.Globalization;
+    using Litium.Runtime.AutoMapper;
+    using Litium.Web.Models;
+    using Litium.Accelerator.Services;
+    using Litium.Sales;
+    using Microsoft.AspNetCore.Antiforgery;
+    using Microsoft.AspNetCore.Http;
+    using System.Threading.Tasks;
 
-namespace Litium.Accelerator.Builders.Framework
-{
+    namespace Litium.Accelerator.Builders.Framework
+    {
     public class ClientContextViewModelBuilder : IViewModelBuilder<ClientContextViewModel>
     {
         private readonly SiteSettingViewModelBuilder _siteSettingViewModelBuilder;
@@ -77,4 +77,4 @@ namespace Litium.Accelerator.Builders.Framework
             return webSite.Website.Texts.GetTextContainer(CultureInfo.CurrentUICulture).Where(t => t.Key.StartsWith("js.")).ToDictionary(t => t.Key.Replace("js.", string.Empty), t => t.Value);
         }
     }
-}
+    }

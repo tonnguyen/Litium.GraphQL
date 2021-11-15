@@ -11,6 +11,7 @@ using Litium.Accelerator.Constants;
 using Litium.Web.Models.Websites;
 using Litium.Accelerator.Extensions;
 using Litium.FieldFramework.FieldTypes;
+using Newtonsoft.Json;
 
 namespace Litium.Accelerator.ViewModels.Block
 {
@@ -19,8 +20,12 @@ namespace Litium.Accelerator.ViewModels.Block
         public Guid SystemId { get; set; }
         public string Title { get; set; }
         public string LinkText { get; set; }
+        [JsonIgnore]
         public List<LinkModel> Pages { get; set; } = new List<LinkModel>();
+        public List<HyperLinkModel> PageUrls { get; set; }
+        [JsonIgnore]
         public LinkModel Url { get; set; }
+        public HyperLinkModel UrlLink { get; set; }
 
         [UsedImplicitly]
         void IAutoMapperConfiguration.Configure(IMapperConfigurationExpression cfg)
@@ -29,7 +34,22 @@ namespace Litium.Accelerator.ViewModels.Block
                .ForMember(x => x.Title, m => m.MapFromField(BlockFieldNameConstants.BlockTitle))
                .ForMember(x => x.LinkText, m => m.MapFromField(BlockFieldNameConstants.LinkText))
                .ForMember(x => x.Pages, m => m.MapFrom(ResolvePages))
-               .ForMember(x => x.Url, m => m.MapFrom(brand => brand.GetValue<PointerPageItem>(BlockFieldNameConstants.Link).MapTo<LinkModel>()));
+               .ForMember(x => x.Url, m => m.MapFrom(brand => brand.GetValue<PointerPageItem>(BlockFieldNameConstants.Link).MapTo<LinkModel>()))
+               .AfterMap((block, blockModel) => {
+                   blockModel.PageUrls = blockModel.Pages.Select(p => 
+                    new HyperLinkModel()
+                    {
+                        Href = p.Href,
+                        Text = p.Text,
+                        ImageUrl = p.Image?.GetUrlToImage(System.Drawing.Size.Empty, new System.Drawing.Size(200, -1)).Url
+                    }).ToList();
+                    blockModel.UrlLink = new HyperLinkModel()
+                    {
+                        Href = blockModel.Url?.Href,
+                        Text = blockModel.Url?.Text,
+                        ImageUrl = blockModel.Url?.Image?.GetUrlToImage(System.Drawing.Size.Empty, new System.Drawing.Size(200, -1)).Url
+                    };
+               });
         }
 
         protected object ResolvePages(BlockModel brandBlock, BrandsBlockViewModel model)

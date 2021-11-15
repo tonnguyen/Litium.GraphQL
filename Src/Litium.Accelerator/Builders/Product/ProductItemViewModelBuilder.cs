@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Litium.Accelerator.Constants;
 using Litium.Accelerator.Extensions;
 using Litium.Accelerator.Routing;
@@ -60,15 +61,18 @@ namespace Litium.Accelerator.Builders.Product
                                                 : _countryService.Get(cartContext.CountryCode);
             var websiteModel = _requestModelAccessor.RequestModel.WebsiteModel;
             var productPriceModel = _productPriceModelBuilder.Build(productModel.SelectedVariant, currency, _requestModelAccessor.RequestModel.ChannelModel.Channel, country);
-
+            var images = productModel.SelectedVariant.Fields.GetValue<IList<Guid>>(SystemFieldDefinitionConstants.Images).MapTo<IList<ImageModel>>();
             return new ProductItemViewModel
             {
+                SystemId = productModel.SelectedVariant.SystemId,
                 Id = productModel.SelectedVariant.Id,
                 Price = productPriceModel,
+                FormattedPrice = productPriceModel.Price.FormatPrice(true),
                 StockStatusDescription = _stockService.GetStockStatusDescription(productModel.SelectedVariant),
                 Currency = currency,
                 IsInStock = _stockService.HasStock(productModel.SelectedVariant),
-                Images = productModel.SelectedVariant.Fields.GetValue<IList<Guid>>(SystemFieldDefinitionConstants.Images).MapTo<IList<ImageModel>>(),
+                Images = images,
+                ImageUrls = images.Select(image => image.GetUrlToImage(new System.Drawing.Size(220, 300), new System.Drawing.Size(280, 400)).Url).ToArray(),
                 Color = _fieldDefinitionService.Get<ProductArea>("Color").GetTranslation(productModel.GetValue<string>("Color")),
                 Size = _fieldDefinitionService.Get<ProductArea>("Size").GetTranslation(productModel.GetValue<string>("Size")),
                 Brand = _fieldDefinitionService.Get<ProductArea>("Brand").GetTranslation(productModel.GetValue<string>("Brand")),

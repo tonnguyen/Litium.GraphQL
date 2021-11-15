@@ -5,7 +5,7 @@ using Litium.FieldFramework.FieldTypes;
 
 namespace Litium.Accelerator.Extensions
 {
-    internal static class FieldDefinitionExtensions
+    public static class FieldDefinitionExtensions
     {
         public static string GetTranslation(this IFieldDefinition field, string key, CultureInfo culture = null)
         {

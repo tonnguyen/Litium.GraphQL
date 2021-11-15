@@ -58,11 +58,13 @@ namespace Litium.Accelerator.ViewModels.Block
                 }
                 else if (blockTemplate.FieldGroups.Any(x => x.Id == "Banner"))
                 {
+                    var image = block.GetValue<Guid>(BlockFieldNameConstants.BlockImagePointer).MapTo<ImageModel>();
                     var banner = new BannerBlockItemViewModel()
                     {
                         LinkText = block.GetValue<string>(BlockFieldNameConstants.LinkText),
                         ActionText = block.GetValue<string>(BlockFieldNameConstants.ActionText),
-                        Image = block.GetValue<Guid>(BlockFieldNameConstants.BlockImagePointer).MapTo<ImageModel>(),
+                        Image = image,
+                        ImageUrl = image.GetUrlToImage(new System.Drawing.Size(786, -1), new System.Drawing.Size(1314, -1)).Url,
                         LinkUrl = GetBannerUrl(block)
                     };
                     result.Add(banner);

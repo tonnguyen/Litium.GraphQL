@@ -11,11 +11,13 @@ using System.Linq;
 using Litium.Accelerator.Builders;
 using Litium.Accelerator.Extensions;
 using Litium.FieldFramework.FieldTypes;
+using Newtonsoft.Json;
 
 namespace Litium.Accelerator.ViewModels.Article
 {
     public class ArticleViewModel : IAutoMapperConfiguration, IViewModel
     {
+        [JsonIgnore]
         public Dictionary<string, List<BlockModel>> Blocks { get; set; }
         public string Introduction { get; set; }
         public string Title { get; set; }

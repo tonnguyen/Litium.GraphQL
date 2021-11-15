@@ -13,8 +13,7 @@ using Litium.Web.Models.Blocks;
 using Litium.Web.Models.Products;
 
 namespace Litium.Accelerator.Builders.Block
-{
-    public class ProductBlockViewModelBuilder : IViewModelBuilder<ProductBlockViewModel>
+{    public class ProductBlockViewModelBuilder : IViewModelBuilder<ProductBlockViewModel>
     {
         private readonly RequestModelAccessor _requestModelAccessor;
         private readonly ProductModelBuilder _productModelBuilder;

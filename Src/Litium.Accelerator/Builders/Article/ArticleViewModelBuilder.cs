@@ -13,8 +13,7 @@ namespace Litium.Accelerator.Builders.Article
         /// <returns>Return the article model</returns>
         public virtual ArticleViewModel Build(PageModel pageModel)
         {
-            var model = pageModel.MapTo<ArticleViewModel>();
-            return model;
+            return pageModel.MapTo<ArticleViewModel>();
         }
     }
 }
