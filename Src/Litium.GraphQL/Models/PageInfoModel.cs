@@ -12,11 +12,11 @@ namespace Litium.GraphQL.Models
 
         public PageInfoModel() { }
 
-        public PageInfoModel(IEnumerable<TModel> list, int skip, int take)
+        public PageInfoModel(IEnumerable<TModel> list, int offset, int take)
         {
             Total = list.Count();
-            List = list.Skip(skip).Take(take).MapEnumerableTo<TViewModel>();
-            HasNextPage = skip + take < Total;
+            List = list.Skip(offset).Take(take).MapEnumerableTo<TViewModel>();
+            HasNextPage = offset + take < Total;
         }
     }
 }

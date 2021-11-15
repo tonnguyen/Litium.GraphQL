@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using Litium.Accelerator.ViewModels.Media;
 using Litium.FieldFramework;
-using Litium.Foundation.Modules.ExtensionMethods;
 using Litium.Media;
+using Litium.Runtime.AutoMapper;
+using Litium.Web.Models;
 
 namespace Litium.Accelerator.Extensions
 {
@@ -13,7 +13,7 @@ namespace Litium.Accelerator.Extensions
     {
         private const string FieldDefinitionConstantSize = "Size";
         private const string FieldDefinitionConstantColor = "Color";
-        public static List<string> GetImageUrls(this IFieldFramework fields, FileService fileService, Func<int, ImageSize> getImageSize = null)
+        public static List<string> GetImageUrls(this IFieldFramework fields, Func<int, ImageSize> getImageSize = null)
         {
             if (fields == null)
             {
@@ -31,12 +31,12 @@ namespace Litium.Accelerator.Extensions
                     {
                         imageSize = getImageSize(i);
                     }
-                    var file = fileService.Get(imageIds[i]);
+                    var file = imageIds[i].MapTo<ImageModel>();
                     var link = (imageSize != null)
-                        ? file.GetUrlToImage(imageSize.MaxSize, imageSize.MinSize, out Size actualSize, false)
-                        : file.GetUrlToImage(out actualSize, false);
+                        ? file.GetUrlToImage(imageSize.MinSize, imageSize.MaxSize)
+                        : file.GetUrlToImage(default, default);
 
-                    result.Add(link);
+                    result.Add(link.Url);
                 }
                 return result;
             }

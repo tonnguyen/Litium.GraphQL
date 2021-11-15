@@ -1,14 +1,8 @@
 ﻿using AutoMapper;
-using Litium.Accelerator.Extensions;
-using Litium.Accelerator.ViewModels.Media;
-using Litium.Media;
-using Litium.Products;
+using Litium.Accelerator.ViewModels.Product;
 using Litium.Runtime.AutoMapper;
-using Litium.Studio.Extenssions;
-using Litium.Web.Administration.FieldFramework;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 
 namespace Litium.GraphQL.Models
@@ -18,68 +12,35 @@ namespace Litium.GraphQL.Models
         public Guid SystemId { get; set; }
         public string Id { get; set; }
         public string Name { get; set; }
-        public IList<ProductModel> Variants { get; set; }
         public IList<string> Images { get; set; }
-        public bool IsVariant { get; set; }
-        public PriceModel Price { get; set; }
+        public string Slug { get; set; }
+        public string Brand { get; set; }
+        public string Color { get; set; }
+        public string Description { get; set; }
+        public bool IsInStock { get; set; }
+        public string FormattedPrice { get; set; }
+        public bool ShowBuyButton { get; set; }
+        public bool ShowQuantityField { get; set; }
+        public string Size { get; set; }
+        public string StockStatusDescription { get; set; }
+        public bool UseVariantUrl { get; set; }
 
         void IAutoMapperConfiguration.Configure(IMapperConfigurationExpression cfg)
         {
-            cfg.CreateMap<BaseProduct, ProductModel>()
-                .ForMember(x => x.IsVariant, m => m.MapFrom(x => false))
-                .ForMember(x => x.Images, m => m.MapFrom<BaseProductImagesResolver>())
-                .ForMember(x => x.Name, m => m.MapFrom(x => x.GetEntityName(true) ?? x.Id ?? "general.NameIsMissing".AsAngularResourceString()));
-            cfg.CreateMap<Variant, ProductModel>()
-                .ForMember(x => x.IsVariant, m => m.MapFrom(x => true))
-                .ForMember(x => x.Variants, m => m.Ignore())
-                .ForMember(x => x.Images, m => m.MapFrom<VariantImagesResolver>())
-                .ForMember(x => x.Name, m => m.MapFrom(x => x.GetEntityName(true) ?? x.Id ?? "general.NameIsMissing".AsAngularResourceString()));
-        }
-        private class BaseProductImagesResolver : IValueResolver<BaseProduct, ProductModel, IList<string>>
-        {
-            private readonly FileService _fileService;
-            private readonly VariantService _variantService;
-
-            public BaseProductImagesResolver(FileService fileService, VariantService variantService)
-            {
-                _fileService = fileService;
-                _variantService = variantService;
-            }
-
-            public IList<string> Resolve(BaseProduct source, ProductModel destination, IList<string> destMember, ResolutionContext context)
-            {
-                var variant = _variantService.GetByBaseProduct(source.SystemId).FirstOrDefault();
-                if (variant != null)
-                {
-                    var images = variant.Fields.GetImageUrls(_fileService, (i) => {
-                        return new ImageSize() { MinSize = new Size(200, 200), MaxSize = new Size(400, 400) };
-                    });
-                    if (images != null && images.Count > 0)
-                    {
-                        return images;
-                    }
-                }
-                return source.Fields.GetImageUrls(_fileService, (i) => {
-                    return new ImageSize() { MinSize = new Size(200, 200), MaxSize = new Size(400, 400) };
-                });
-            }
-        }
-
-        private class VariantImagesResolver : IValueResolver<Variant, ProductModel, IList<string>>
-        {
-            private readonly FileService _fileService;
-
-            public VariantImagesResolver(FileService fileService)
-            {
-                _fileService = fileService;
-            }
-
-            public IList<string> Resolve(Variant source, ProductModel destination, IList<string> destMember, ResolutionContext context)
-            {
-                return source.Fields.GetImageUrls(_fileService, (i) => {
-                    return new ImageSize() { MinSize = new Size(200, 200), MaxSize = new Size(400, 400) };
-                });
-            }
+            cfg.CreateMap<ProductItemViewModel, ProductModel>()
+                .ForMember(x => x.Images, m => m.MapFrom(x => x.ImageUrls.ToList()))
+                .ForMember(x => x.Slug, m => m.MapFrom(x => x.Url))
+                ;
+            cfg.CreateMap<ProductPageViewModel, ProductModel>()
+                .ForMember(x => x.Color, m => m.MapFrom(x => x.ColorText))
+                .ForMember(x => x.Name, m => m.MapFrom(x => x.ProductItem.Name))
+                .ForMember(x => x.Images, m => m.MapFrom(x => x.ProductItem.ImageUrls))
+                .ForMember(x => x.Brand, m => m.MapFrom(x => x.BrandPage.Title))
+                .ForMember(x => x.Id, m => m.MapFrom(x => x.ProductItem.Id))
+                .ForMember(x => x.Slug, m => m.MapFrom(x => x.ProductItem.Url))
+                .ForMember(x => x.Description, m => m.MapFrom(x => x.ProductItem.Description))
+                .ForMember(x => x.FormattedPrice, m => m.MapFrom(x => x.ProductItem.Price.Price.FormatPrice(true)))
+                ;
         }
     }
 

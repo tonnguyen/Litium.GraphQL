@@ -1,0 +1,11 @@
+.order-history {
+    @include breakpoint(small only) {
+        & > .row {
+            border: 1px solid #ddd;
+        }
+    
+        & > .row:nth-child(n + 3) {
+            border-top: none;
+        }
+    }
+}

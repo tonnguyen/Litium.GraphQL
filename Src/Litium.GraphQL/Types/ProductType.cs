@@ -2,10 +2,8 @@
 using Litium.Globalization;
 using Litium.GraphQL.Models;
 using Litium.Products;
-using Litium.Runtime.AutoMapper;
 using Litium.Runtime.DependencyInjection;
-using System;
-using System.Linq;
+using Litium.Web;
 
 namespace Litium.GraphQL.Types
 {
@@ -14,46 +12,31 @@ namespace Litium.GraphQL.Types
     {
         public ProductType(
             VariantService variantService,
+            CategoryService categoryService,
             CurrencyService currencyService,
             ChannelService channelService,
-            Web.Models.Products.ProductPriceModelBuilder productPriceModelBuilder)
+            CountryService countryService,
+            Web.Models.Products.ProductPriceModelBuilder productPriceModelBuilder,
+            BaseProductService baseProductService,
+            UrlService urlService)
         {
             Name = "Product";
             Description = "A product";
             Field(p => p.SystemId, type: typeof(IdGraphType)).Description("The system Id");
             Field(p => p.Id).Description("The article number");
-            Field(p => p.Name).Description("The product name");
-            Field(p => p.Images).Description("The images");
-            Field(p => p.IsVariant).Description("The flag to indicate the object is a variant or a base product");
-            Field<ListGraphType<ProductType>>(nameof(ProductModel.Variants), "Variants belong to the product",
-                arguments: new QueryArguments(
-                        new QueryArgument<IntGraphType> { Name = "skip" },
-                        new QueryArgument<IntGraphType> { Name = "take" }
-                    ),
-                resolve: context => variantService.GetByBaseProduct(context.Source.SystemId)
-                                    .Skip(context.GetArgument("skip", 0))
-                                    .Take(context.GetArgument("take", 10))
-                                    .MapEnumerableTo<ProductModel>());
-            Field<PriceType>(nameof(ProductModel.Price),
-                resolve: context =>
-                {
-                    if (!context.Source.IsVariant)
-                    {
-                        return null;
-                    }
-
-                    var variant = variantService.Get(context.Source.SystemId);
-                    var currency = currencyService.GetBaseCurrency();
-                    var channel = channelService.GetAll().First();
-                    var price = productPriceModelBuilder.Build(variant, currency, channel);
-                    return new PriceModel()
-                    {
-                        Currency = price.Currency.Symbol,
-                        ListPrice = price.Price?.PriceWithVat ?? 0,
-                        FormattedPrice = price.Price?.FormatPrice(true) ?? string.Empty
-                    };
-                }
-            );
+            Field(p => p.Name);
+            Field(p => p.Images);
+            Field(p => p.Brand, nullable: true);
+            Field(p => p.Color);
+            Field(p => p.Description);
+            Field(p => p.IsInStock);
+            Field(p => p.FormattedPrice);
+            Field(p => p.ShowBuyButton);
+            Field(p => p.ShowQuantityField);
+            Field(p => p.Size);
+            Field(p => p.StockStatusDescription);
+            Field(p => p.Slug);
+            Field(p => p.UseVariantUrl);
         }
     }
 

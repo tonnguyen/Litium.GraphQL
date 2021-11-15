@@ -1,18 +1,16 @@
-﻿using GraphQL;
-using GraphQL.Types;
+﻿using GraphQL.Types;
 using Litium.GraphQL.Queries;
-using Litium.Runtime.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 
 namespace Litium.GraphQL
 {
-    [Service(ServiceType = typeof(ISchema), Lifetime = DependencyLifetime.Singleton)]
     public class LitiumSchema : Schema
     {
-        public LitiumSchema(LitiumQuery query, IServiceProvider serviceProvider)
-            : base(new FuncDependencyResolver(type => serviceProvider.GetService(type)))
+        public LitiumSchema(IServiceProvider provider)
+            : base(provider)
         {
-            Query = query;
+            Query = provider.GetRequiredService<LitiumQuery>();
         }
     }
 }
