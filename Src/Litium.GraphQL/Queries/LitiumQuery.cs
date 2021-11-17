@@ -92,14 +92,7 @@ namespace Litium.GraphQL.Queries
                         if (slug != null && slug.Any())
                         {
                             var globalModel = context.GetArgument<GlobalModel>("global");
-                            var culture = CultureInfo.GetCultureInfo(globalModel.CurrentUICulture);
-                            categoryId = Guid.Empty;
-                            foreach (var segment in slug)
-                            {
-                                routingHelperService.TryGetCategory(categoryId, 
-                                    segment, culture, out categoryId, globalModel.AssortmentSystemId);
-                            }
-                            return categoryService.Get(categoryId).MapTo<CategoryModel>();
+                            return GetCategoryFromSlug(slug, globalModel, routingHelperService, categoryService);
                         }
                         return categoryService.Get(categoryId).MapTo<CategoryModel>();
                     }
@@ -139,22 +132,12 @@ namespace Litium.GraphQL.Queries
                     var slug = context.GetArgument<string>("slug");
                     var globalModel = context.GetArgument<GlobalModel>("global");
                     if (!string.IsNullOrEmpty(slug)) {
-                        var culture = CultureInfo.GetCultureInfo(globalModel.CurrentUICulture);
-                        if (!routingHelperService.TryGetBaseProduct(slug, culture, out systemId)) {
-                            routingHelperService.TryGetVariant(slug, culture, out systemId);
-                        }
+                        systemId = GetProductSystemIdFromSlug(slug, globalModel, routingHelperService);
                     }
                     // Special treatment for scoped services https://graphql-dotnet.github.io/docs/getting-started/dependency-injection/#scoped-services-with-a-singleton-schema-lifetime
                     // and make sure it is thread safe https://graphql-dotnet.github.io/docs/getting-started/dependency-injection/#thread-safety-with-scoped-services
                     using var scope = context.RequestServices.CreateScope();
-                    var productPageViewModelBuilder = scope.ServiceProvider.GetRequiredService<ProductPageViewModelBuilder>();
-                    var baseProduct = baseProductService.Get(systemId);
-                    routeInfoService.Setup(globalModel, null);
-                    if (baseProduct != null)
-                    {
-                        return productPageViewModelBuilder.Build(baseProduct).MapTo<ProductModel>();
-                    }
-                    return productPageViewModelBuilder.Build(variantService.Get(systemId)).MapTo<ProductModel>();
+                    return GetProduct(systemId, scope, baseProductService, variantService, globalModel);
                 }
                 );
 
@@ -195,14 +178,7 @@ namespace Litium.GraphQL.Queries
                     routeInfoService.Setup(globalModel, null);
                     if (slug != null && slug.Any())
                     {
-                        var culture = CultureInfo.GetCultureInfo(globalModel.CurrentCulture);
-                        var startPage = pageService.GetChildPages(Guid.Empty, globalModel.WebsiteSystemId).FirstOrDefault();
-                        var pageId = startPage.SystemId;
-                        foreach (var segment in slug)
-                        {
-                            routingHelperService.TryGetPage(pageId, segment, culture, out pageId, globalModel.WebsiteSystemId);
-                        }
-                        return pageService.Get(pageId).MapTo<PageModel>();
+                        return GetPageFromSlug(slug, globalModel, pageService, routingHelperService);
                     }
 
                     var systemId = context.GetArgument<Guid?>("systemId");
@@ -234,6 +210,91 @@ namespace Litium.GraphQL.Queries
                     );
                 }
             );
+
+            Field<ContentType>(
+                "content",
+                arguments: new QueryArguments(
+                    new QueryArgument<GlobalInputType> { Name = "global", Description = "The global object" },
+                    new QueryArgument<ListGraphType<StringGraphType>> { Name = "slug", Description = "The slug array" }
+                ),
+                resolve: context =>
+                {
+                    var slug = context.GetArgument<string[]>("slug");
+                    var globalModel = context.GetArgument<GlobalModel>("global");
+                    routeInfoService.Setup(globalModel, null);
+
+                    var systemId = GetProductSystemIdFromSlug(slug[slug.Length - 1], globalModel, routingHelperService);
+                    if (systemId != Guid.Empty)
+                    {
+                        // Special treatment for scoped services https://graphql-dotnet.github.io/docs/getting-started/dependency-injection/#scoped-services-with-a-singleton-schema-lifetime
+                        // and make sure it is thread safe https://graphql-dotnet.github.io/docs/getting-started/dependency-injection/#thread-safety-with-scoped-services
+                        using var scope = context.RequestServices.CreateScope();
+                        return GetProduct(systemId, scope, baseProductService, variantService, globalModel);
+                    }
+
+                    var category = GetCategoryFromSlug(slug, globalModel, routingHelperService, categoryService);
+                    if (category != null)
+                    {
+                        return category;
+                    }
+                    return GetPageFromSlug(slug, globalModel, pageService, routingHelperService);
+                }
+            );
+        }
+
+        private static Guid GetProductSystemIdFromSlug(string slug, GlobalModel globalModel, RoutingHelperService routingHelperService)
+        {
+            var systemId = Guid.Empty;
+            var culture = CultureInfo.GetCultureInfo(globalModel.CurrentUICulture);
+            if (!routingHelperService.TryGetBaseProduct(slug, culture, out systemId)) {
+                routingHelperService.TryGetVariant(slug, culture, out systemId);
+            }
+            return systemId;
+        }
+
+        private static ProductModel GetProduct(Guid systemId, IServiceScope scope, 
+            BaseProductService baseProductService, VariantService variantService,
+            GlobalModel globalModel)
+        {
+            // Special treatment for scoped services https://graphql-dotnet.github.io/docs/getting-started/dependency-injection/#scoped-services-with-a-singleton-schema-lifetime
+            // and make sure it is thread safe https://graphql-dotnet.github.io/docs/getting-started/dependency-injection/#thread-safety-with-scoped-services
+            var productPageViewModelBuilder = scope.ServiceProvider.GetRequiredService<ProductPageViewModelBuilder>();
+            var baseProduct = baseProductService.Get(systemId);
+            if (baseProduct != null)
+            {
+                return productPageViewModelBuilder.Build(baseProduct).MapTo<ProductModel>();
+            }
+            return productPageViewModelBuilder.Build(variantService.Get(systemId)).MapTo<ProductModel>();
+        }
+
+        private static CategoryModel GetCategoryFromSlug(string[] slug, GlobalModel globalModel, 
+            RoutingHelperService routingHelperService, CategoryService categoryService)
+        {
+            var culture = CultureInfo.GetCultureInfo(globalModel.CurrentUICulture);
+            var categoryId = Guid.Empty;
+            foreach (var segment in slug)
+            {
+                routingHelperService.TryGetCategory(categoryId, 
+                    segment, culture, out categoryId, globalModel.AssortmentSystemId);
+            }
+            if (categoryId == Guid.Empty)
+            {
+                return null;
+            }
+            return categoryService.Get(categoryId).MapTo<CategoryModel>();
+        }
+
+        private static PageModel GetPageFromSlug(string[] slug, GlobalModel globalModel, PageService pageService,
+            RoutingHelperService routingHelperService)
+        {
+            var culture = CultureInfo.GetCultureInfo(globalModel.CurrentCulture);
+            var startPage = pageService.GetChildPages(Guid.Empty, globalModel.WebsiteSystemId).FirstOrDefault();
+            var pageId = startPage.SystemId;
+            foreach (var segment in slug)
+            {
+                routingHelperService.TryGetPage(pageId, segment, culture, out pageId, globalModel.WebsiteSystemId);
+            }
+            return pageService.Get(pageId).MapTo<PageModel>();
         }
     }
 }
