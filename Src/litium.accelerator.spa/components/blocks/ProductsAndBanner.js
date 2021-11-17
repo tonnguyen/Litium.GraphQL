@@ -10,13 +10,13 @@ export default function ProductsAndBanner({ data }) {
     const { showProductToTheRight } = data;
     return (
         <div className="row mixed">
-            {showProductToTheRight && (
+            {!showProductToTheRight && (
                 <>
                     <ProductMixed data={data} />
                     <BannersMixed data={data} />
                 </>
             )}
-            {!showProductToTheRight && (
+            {showProductToTheRight && (
                 <>
                     <BannersMixed data={data} />
                     <ProductMixed data={data} />
