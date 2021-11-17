@@ -14,7 +14,7 @@ export default function Product({ data }) {
             </div>
             {footerLinkUrl && <div className="row">
                 <div className="columns small-12 text--right">
-                    <Link className="product-list__link" href={`/categories${relativePath(footerLinkUrl)}`}><a>{footerLinkText}</a></Link>
+                    <Link className="product-list__link" href={`${relativePath(footerLinkUrl)}`}><a>{footerLinkText}</a></Link>
                 </div>
             </div>}
             {products && <ul className="row product-list">

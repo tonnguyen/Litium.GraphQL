@@ -6,8 +6,8 @@ export default function Banner({ data, systemId }) {
     const { banners } = data;
     const hasBanner = banners && banners.length > 0;
     const largeColumn = hasBanner ? 12 / Math.min(banners.length, 4) : 12;
-    const width = largeColumn ? 1314 : 642;
-    const height = largeColumn ? 503 : 642;
+    const width = largeColumn === 12 ? 1314 : 642;
+    const height = largeColumn === 12 ? 503 : 642;
     const cssClasses = `columns small-12 large-${largeColumn} ${largeColumn === 12 ? 'single-banner' : 'multiple-banner'}`;
     return (
         <>
@@ -15,8 +15,8 @@ export default function Banner({ data, systemId }) {
             {banners.map(({ imageUrl, linkText, linkUrl, actionText }) => (
                 <div className={cssClasses} key={`${systemId}${imageUrl}`}>
                     <div className="teaser">
-                        <Link href={linkUrl} className="banner-block__image-link">
-                            <a>
+                        <Link href={relativePath(linkUrl)} className="banner-block__image-link">
+                            <a className="banner-block__image-link">
                                 <Image priority className="banner-block__image"
                                     src={`${process.env.CDN_URL}${relativePath(imageUrl)}`}
                                     height={height}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { relativePath } from "../utilities/url";
 import Image from "./Image";
 import Navigation from "./Navigation";
 
@@ -23,7 +24,7 @@ export default function Header({ logoUrl, topLinkList, contentLinks }) {
                 <div className="header__components">
                     {topLinkList && topLinkList.length && topLinkList.map(link => {
                         {link && <div className="top-link">
-                            <Link className="top-link__link--block" href={link.href}>
+                            <Link className="top-link__link--block" href={relativePath(link.href)}>
                                 <span className="top-link__title">{link.text}</span>
                             </Link>
                         </div>}
