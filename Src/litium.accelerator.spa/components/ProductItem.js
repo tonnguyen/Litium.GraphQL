@@ -11,7 +11,7 @@ export default function ProductItem({ imageUrls, url, formattedPrice, name, bran
         <div itemType="http://schema.org/Product" className="product__wrapper">
             <figure className="product__figure">
                 {imageUrls && imageUrls.length > 0 && 
-                <Link href={`/products${relativePath(url)}`} className="product__image-link">
+                <Link href={`${relativePath(url)}`} className="product__image-link">
                     <a><Image priority className="product__image"
                         src={`${process.env.CDN_URL}${imageUrls[0]}`}
                         height={maxHeight}
@@ -22,7 +22,7 @@ export default function ProductItem({ imageUrls, url, formattedPrice, name, bran
                 {(!imageUrls || imageUrls.length < 1) && <span className="product__image--missing">{'product.noproductimage'}</span>}
             </figure>
             <article className="product__info">
-                <Link href={`/products${relativePath(url)}`}>
+                <Link href={`${relativePath(url)}`}>
                     <a>
                         <h3 itemProp="name" className="product__name">{name}</h3>
                         {brand && <h4 itemProp="brand" className="product__brand">{brand}</h4>}

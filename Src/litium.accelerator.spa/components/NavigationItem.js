@@ -29,7 +29,7 @@ const NavigationItem = ({ links = [], contentLink = null }) => {
                 ></a>
             ) : (
                 <Fragment>
-                    <Link href={`/categories${relativePath(contentLink.href)}`}>
+                    <Link href={`${relativePath(contentLink.href)}`}>
                         <a className={`navbar__link ${selectedClass} ${hasChildrenClass || ''} ${additionClass || ''}`}>{contentLink.sectionText || contentLink.text}
                         </a>
                     </Link>
